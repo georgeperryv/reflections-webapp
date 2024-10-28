@@ -5,12 +5,13 @@ from dotenv import load_dotenv
 import openai
 import speech_recognition as sr
 from flask_mail import Mail, Message
+from models import db, Reflection
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@localhost/daily_reflections'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://admin:CandyCane123@reflectionsdb.cvy88ysg020q.us-east-1.rds.amazonaws.com/reflectionsdb'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.example.com'
 app.config['MAIL_PORT'] = 587
@@ -19,16 +20,18 @@ app.config['MAIL_PASSWORD'] = 'your-password'
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 mail = Mail(app)
-db = SQLAlchemy(app)
+
+# db = SQLAlchemy(app)
+db.init_app(app)
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Import the model
 from models import db, Reflection
 
-db.init_app(app)
 
-@app.before_first_request
+
+@app.before_request
 def create_tables():
     db.create_all()
 
